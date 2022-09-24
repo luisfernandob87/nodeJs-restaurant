@@ -2,7 +2,8 @@ const express = require('express');
 
 // Controllers
 const {
-  getAllUsers,
+  getUserOrder,
+  getUserOrders,
   createUser,
   updateUser,
   deleteUser,
@@ -28,10 +29,12 @@ usersRouter.post('/login', login);
 
 usersRouter.use(protectSession);
 
-usersRouter.get('/', getAllUsers);
-
 usersRouter.patch('/:id', userExists, protectUsersAccount, updateUser);
 
 usersRouter.delete('/:id', userExists, protectUsersAccount, deleteUser);
+
+usersRouter.get('/orders', getUserOrders);
+
+usersRouter.get('/orders/:id', getUserOrder);
 
 module.exports = { usersRouter };

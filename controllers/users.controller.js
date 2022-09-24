@@ -8,21 +8,39 @@ const { User } = require('../models/user.model');
 // Utils
 const { catchAsync } = require('../utils/catchAsync.util');
 const { AppError } = require('../utils/appError.util');
+const { Order } = require('../models/order.model');
 
 dotenv.config({ path: './config.env' });
 
 // Gen random jwt signs
 // require('crypto').randomBytes(64).toString('hex') -> Enter into the node console and paste the command
 
-const getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.findAll({
+const getUserOrders = catchAsync(async (req, res, next) => {
+  const { sessionUser } = req;
+  const user = await User.findOne({
     attributes: { exclude: ['password'] },
     where: { status: 'active' },
+    include: [{ model: Order, where: { userId: sessionUser.id } }],
   });
 
   res.status(200).json({
     status: 'success',
-    data: { users },
+    data: { user },
+  });
+});
+
+const getUserOrder = catchAsync(async (req, res, next) => {
+  const { sessionUser } = req;
+  const { id } = req.params;
+
+  const user = await User.findOne({
+    attributes: { exclude: ['password'] },
+    where: { status: 'active' },
+    include: [{ model: Order, where: { userId: sessionUser.id, id: id } }],
+  });
+  res.status(200).json({
+    status: 'success',
+    data: { user },
   });
 });
 
@@ -104,7 +122,8 @@ const login = catchAsync(async (req, res, next) => {
 });
 
 module.exports = {
-  getAllUsers,
+  getUserOrder,
+  getUserOrders,
   createUser,
   updateUser,
   deleteUser,
