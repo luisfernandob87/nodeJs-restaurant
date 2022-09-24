@@ -5,7 +5,7 @@ const { catchAsync } = require('../utils/catchAsync.util');
 const getOrders = catchAsync(async (req, res, next) => {
   const { sessionUser } = req;
 
-  const orders = await Order.findAll({});
+  const orders = await Order.findAll({ where: { userId: sessionUser.id } });
 
   res.status(200).json({
     status: 'success',
@@ -29,8 +29,26 @@ const createOrder = catchAsync(async (req, res, next) => {
   });
 });
 
-const updateOrder = catchAsync(async (req, res, next) => {});
+const updateOrder = catchAsync(async (req, res, next) => {
+  const { order } = req;
 
-const deleteOrder = catchAsync(async (req, res, next) => {});
+  await order.update({ status: 'completed' });
+
+  res.status(200).json({
+    status: 'success',
+    data: { order },
+  });
+});
+
+const deleteOrder = catchAsync(async (req, res, next) => {
+  const { order } = req;
+
+  await order.update({ status: 'cancelled' });
+
+  res.status(200).json({
+    status: 'success',
+    data: { order },
+  });
+});
 
 module.exports = { getOrders, createOrder, updateOrder, deleteOrder };
